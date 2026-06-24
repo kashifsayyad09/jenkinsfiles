@@ -1,0 +1,309 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('first') {
+            steps {
+                echo 'Hello first stage'
+            }
+        }
+    }
+}
+
+--------------------------
+multi stage example:
+-------------------------
+pipeline {
+    agent any
+
+    stages {
+        stage('first') {
+            steps {
+                echo 'Hello first stage'
+            }
+        }
+        
+        stage('second') {
+            steps {
+                echo 'Hello second stage'
+            }
+        }
+    }
+
+
+### With terraform examples ###
+
+
+#Ex:-1
+
+pipeline {
+    agent any
+
+    stages {
+        stage('git checkout') {
+            steps {
+               git branch: 'main', url: 'https://github.com/CloudTechDevOps/Terraform-0730am.git'
+            }
+        }
+         stage('init') {
+            steps {
+                sh '''
+                     cd Day-1-Terraform-basic-config
+                     terraform init
+                     '''
+                
+            }
+        }
+        stage('plan') {
+            steps {
+                sh '''
+                    cd Day-1-Terraform-basic-config
+                    terraform plan
+                    '''
+            }
+        }
+        stage('apply') {
+            steps {
+                sh '''
+                    cd Day-1-Terraform-basic-config
+                    terraform apply -auto-approve
+                    '''
+            }
+        }
+    }
+}
+
+
+
+
+#Ex-2
+
+pipeline {
+    agent any
+
+    stages {
+        stage('git checkout') {
+            steps {
+               git branch: 'main', url: 'https://github.com/CloudTechDevOps/Terraform-0730am.git'
+            }
+        }
+         stage('init') {
+            steps {
+                dir('Day-1-Terraform-basic-config') {
+               sh 'terraform init'
+               sh 'terraform plan'
+               sh 'terraform apply -auto-approve'
+                }
+            }
+        }
+      
+    }
+}
+
+
+
+
+#Ex:-3
+
+pipeline {
+    agent any
+
+    stages {
+        stage('git checkout') {
+            steps {
+               git branch: 'main', url: 'https://github.com/CloudTechDevOps/Terraform-0730am.git'
+            }
+        }
+         stage('init') {
+            steps {
+                dir('Day-1-Terraform-basic-config') {
+               sh '''
+               terraform init
+               terraform plan
+               terraform apply -auto-approve
+               '''
+                }
+            }
+        }
+      
+    }
+}
+
+
+
+#Ex;-4
+
+pipeline {
+    agent any
+
+    stages {
+        stage('git checkout') {
+            steps {
+               git branch: 'main', url: 'https://github.com/CloudTechDevOps/Terraform-0730am.git'
+            }
+        }
+         stage('init') {
+            steps {
+                dir('Day-1-Terraform-basic-config') {
+                  sh  'terraform init'
+              
+                }
+            }
+        }
+        stage('plan') {
+            steps {
+                dir('Day-1-Terraform-basic-config') {
+                  sh  'terraform plan'
+              
+                }
+            }
+        }
+        stage('apply') {
+            steps {
+                dir('Day-1-Terraform-basic-config') {
+                  sh  'terraform apply -auto-approve'
+              
+                }
+            }
+        }
+      
+    }
+}
+
+
+
+
+
+#Ex-5
+
+pipeline {
+    agent any
+
+    stages {
+        stage('git checkout') {
+            steps {
+               git branch: 'main', url: 'https://github.com/CloudTechDevOps/Terraform-0730am.git'
+            }
+        }
+         stage('init') {
+            steps {
+                dir('Day-1-Terraform-basic-config') {
+                  sh  'terraform init'
+              
+                }
+            }
+        }
+        stage('plan') {
+            steps {
+                dir('Day-1-Terraform-basic-config') {
+                  sh  'terraform plan'
+              
+                }
+            }
+        }
+
+        stage ('approve plan') {
+            steps {
+                input 'Do you want to apply the changes?'
+            }
+        }
+
+        stage('apply') {
+            steps {
+                dir('Day-1-Terraform-basic-config') {
+                  sh  'terraform apply -auto-approve'
+              
+                }
+            }
+        }
+      
+    }
+}
+
+
+## Exmample init,validate, fmt, plan, approve 
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/kashifsayyad09/jenkinsfiles.git'
+            }
+        }
+
+        stage('Init') {
+            steps {
+                dir('Day-1-Terraform-basic-config') {
+                    sh 'terraform init'
+                }
+            }
+        }
+
+        stage('Validate') {
+            steps {
+                dir('Day-1-Terraform-basic-config') {
+                    sh 'terraform validate'
+                }
+            }
+        }
+
+        stage('Fmt Check') {
+            steps {
+                dir('Day-1-Terraform-basic-config') {
+                    sh 'terraform fmt -check'
+                }
+            }
+        }
+
+        stage('Plan') {
+            steps {
+                dir('Day-1-Terraform-basic-config') {
+                    sh 'terraform plan'
+                }
+            }
+        }
+
+        stage('Approval') {
+            steps {
+                input 'Approve Terraform Apply?'
+            }
+        }
+
+        stage('Apply') {
+            steps {
+                dir('Day-1-Terraform-basic-config') {
+                    sh 'terraform apply -auto-approve'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Infrastructure provisioned successfully'
+        }
+
+        failure {
+            echo 'Terraform deployment failed'
+        }
+    }
+}
+
+# Examaple with lable pipeline
+pipeline {
+    agent {
+        label 'dev'  #here label should match
+    }
+
+    stages {
+        stage('git checkout') {
+            steps {
+               git branch: 'main', url: 'https://github.com/kashifsayyad09/jenkinsfiles.git'
+            }
+        }
+        
+    }
+}
