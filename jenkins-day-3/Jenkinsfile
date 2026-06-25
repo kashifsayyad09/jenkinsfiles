@@ -1,0 +1,43 @@
+#create pipeline for backend python flask
+pipeline{
+    agent any
+    stages{
+        stage('git checkout'){
+            steps{ 
+                git branch: 'main', url: 'https://github.com/CloudTechDevOps/python-backend-testing.git'
+            }
+
+        }
+        stage('connection RDS'){
+            steps{
+                dir ('backend'){
+                sh '''
+                sudo yum install mariadb105-server
+                mysql -h ${DB_HOST} -u ${DB_USER} -p${DB_PASSWORD} < test.sql
+                '''
+                }
+            }
+        }
+        stage('installing dependencies'){
+            steps{
+                dir ('backend'){
+                sh '''
+                sudo yum install python3-pip
+                pip3 install -r requirements.txt
+                '''
+                }
+            }
+        }
+        stage('run application'){
+            steps{
+                sh '''
+                sudo systemctl daemon-reload
+                sudo systemctl enable flask
+                sudo systemctl start flask
+                sudo systemctl status flask
+                '''
+            }
+        }
+
+    }
+}
