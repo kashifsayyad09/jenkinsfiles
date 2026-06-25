@@ -1,0 +1,46 @@
+pipeline {
+    agent {
+        label 'prod'
+    }
+
+    stages {
+
+        stage('Git Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/kashifsayyad09/terraform-dwmc.git'
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                dir('terraform-day-13-loops-count/counts') {
+                    sh 'terraform init'
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                dir('terraform-day-13-loops-count/counts') {
+                    sh 'terraform plan'
+                }
+            }
+        }
+
+        stage('Approval') {
+            steps {
+                input message: 'Do you want to apply the Terraform changes?',
+                      ok: 'Approve'
+            }
+        }
+
+        stage('Terraform Apply and Destroy') {
+            steps {
+                dir('terraform-day-13-loops-count/counts') {
+                    sh 'terraform ${action} -auto-approve'
+                }
+            }
+        }
+    }
+}
